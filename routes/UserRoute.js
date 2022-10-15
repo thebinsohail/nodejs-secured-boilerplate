@@ -1,8 +1,9 @@
 const express = require('express')
 const dotenv = require('dotenv');
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
-const { sequelize, User } = require("../models");
+const { User } = require("../models");
 
 const posts = [
     {
@@ -56,13 +57,14 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
 
     const username = req.body.userName
-    const user = { username: username }
+    const password = req.body.password;
+    const user = { username: username,password: password}
     
         const dbUser=await User.findOne({
-            where:{userName:username}
+            where:{userName:username,password:password}
         })
 
-        
+
         if(dbUser){
             const accessToken = jwt.sign({ user: user }, process.env.JWT_ACCESS_TOKEN_SECRET)
             return res.status(200).send({ accessToken: accessToken });
