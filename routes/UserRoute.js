@@ -1,7 +1,8 @@
-const express=require('express')
+const express = require('express')
 const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
-const router=express.Router();
+const router = express.Router();
+const { sequelize, User } = require("../models");
 
 const posts = [
     {
@@ -19,22 +20,55 @@ const posts = [
 
 ];
 
+
 // Set up Global configuration access
-dotenv.config({path:"../.env"});
+dotenv.config({ path: "../.env" });
 
 
 router.get("/posts", authenticateToken, ((req, res) => {
-    res.json(posts.filter(post => post.username===req.user.username))
+    res.json(posts.filter(post => post.username === req.user.username))
 }));
 
+router.post("/register", async (req, res) => {
 
-router.post("/login", (req, res) => {
+   
+    const { email, userName, password } = req.body;
 
-    const username = req.body.username
-    const user={username:username}
-    const accessToken = jwt.sign({ user: user}, process.env.JWT_ACCESS_TOKEN_SECRET)
+    try {
+        const Dbuser=await User.findOne({
+            where:{email:req.body.email}
+        })
 
-    res.send({ accessToken: accessToken });
+        if(Dbuser==null){
+            const user=await User.create({ email, userName, password })
+            return res.json(user);
+        }
+
+        else
+            res.status(500).send(`User already exists with the email ${req.body.email}!`);
+        
+    } catch (error) {
+          return res.status(500).send(error); 
+    }
+
+})
+
+router.post("/login", async (req, res) => {
+
+    const username = req.body.userName
+    const user = { username: username }
+    
+        const dbUser=await User.findOne({
+            where:{userName:username}
+        })
+
+        
+        if(dbUser){
+            const accessToken = jwt.sign({ user: user }, process.env.JWT_ACCESS_TOKEN_SECRET)
+            return res.status(200).send({ accessToken: accessToken });
+        }
+
+       return res.status(500).send({message:"User not Found!"}); 
 
 });
 
