@@ -16,26 +16,19 @@ app.use("/user", userRoute);
 
 let PORT = process.env.PORT || 5000;
 
-async function testConnection() {
-    try {
-        await sequelize.authenticate();
-    } catch (error) {
-        console.log(error);
-    }
+async function main() {
+    await sequelize.authenticate();
 }
 
-// testing db connection
-testConnection();
+main();
 
 // start the server
-let server=app.listen(PORT, async () => {
-
+app.listen(PORT, async () => {
+  
     console.log(`Server is up and running on ${PORT} ...`);
-    await sequelize.sync({ force: true })
+    await sequelize.sync({force:true})
     console.log("Initialized Databased and Synced!");
 });
 
-// max timeout for all the requests to complete
-server.timeout=1000
 
 
