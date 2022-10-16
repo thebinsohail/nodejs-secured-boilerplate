@@ -17,7 +17,7 @@ router.get("/feed",
         res.json({
             auth: true,
             message: "allowed for user with role ROLE_USER",
-            body: req.body
+            body: req.user
         });
     })
 
@@ -64,7 +64,7 @@ router.post("/login", async (req, res) => {
 
     if (dbUser) {
 
-        const accessToken = jwtUtil.generateAccessToken({ user: user });
+        const accessToken = jwtUtil.generateAccessToken({ user: user },'10m');
         const refreshToken = jwtUtil.generateRefreshToken({ user: user });
 
         refreshTokens.push(refreshToken);
