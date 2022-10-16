@@ -3,31 +3,29 @@ const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 const { User } = require("../models");
-const middlewares =require("../middlewares/middlewares");
+const jwtUtil = require('../utils/JwtUtil');
+const middlewares = require("../middlewares/middlewares");
 
 // Set up Global configuration access
 dotenv.config({ path: "../.env" });
 
 // if the user has role "ROLE_USER" it will allow to access else no access!
-router.get("/feed",[middlewares.tokenAuthentication,middlewares.roleAuthentication('ROLE_USER')],(req,res)=>{
-    res.json({
-       auth:true,
-       message:"allowed for user with role ROLE_USER"
-    });
-})
+router.get("/feed",
+    [middlewares.tokenAuthentication,
+    middlewares.roleAuthentication('ROLE_USER')],
+    (req, res) => {
+        res.json({
+            auth: true,
+            message: "allowed for user with role ROLE_USER",
+            body: req.body
+        });
+    })
 
-// // if the user has role "ROLE_ADMIN" it will allow to access else no access!
-// router.get("/manage",[middlewares.tokenAuthentication,middlewares.roleAuthentication('ROLE_ADMIN')],(req, res)=>{
-//     res.json({
-//         auth:true,
-//         message:"Allowed for user with role ROLE_ADMIN"
-//     })
-// });
 
 router.post("/register", async (req, res) => {
 
 
-    const { email, userName, password,role} = req.body;
+    const { email, userName, password, role } = req.body;
 
     try {
         const Dbuser = await User.findOne({
@@ -35,7 +33,7 @@ router.post("/register", async (req, res) => {
         })
 
         if (Dbuser == null) {
-            const user = await User.create({ email, userName, password,role})
+            const user = await User.create({ email, userName, password, role })
             return res.json(user);
         }
 
@@ -54,19 +52,21 @@ router.post("/register", async (req, res) => {
 let refreshTokens = [];
 
 router.post("/login", async (req, res) => {
-    
+
     const username = req.body.userName
     const password = req.body.password;
-    const role= req.body.role;
-    const user = { username: username, password: password,role:role}
+    const role = req.body.role;
+    const user = { username: username, password: password, role: role }
     const dbUser = await User.findOne({
-        where: { userName: username, password: password,role:role}
+        where: { userName: username, password: password, role: role }
     })
 
 
     if (dbUser) {
-        const accessToken = generateAccessToken({ user: user });
-        const refreshToken = generateRefreshToken({ user: user });
+
+        const accessToken = jwtUtil.generateAccessToken({ user: user });
+        const refreshToken = jwtUtil.generateRefreshToken({ user: user });
+
         refreshTokens.push(refreshToken);
         return res.status(200).send({ accessToken: accessToken, refreshToken: refreshToken });
     }
@@ -74,7 +74,6 @@ router.post("/login", async (req, res) => {
     return res.status(500).send({ error: "Unable to Authenticate User", message: "User not Found!" });
 
 });
-
 
 
 router.post('/token', (req, res) => {
@@ -86,21 +85,11 @@ router.post('/token', (req, res) => {
 
     jwt.verify(refreshToken, process.env.JWT_REFRESH_TOKEN_SECRET, (err, user) => {
         if (err) return res.status(403).send(err);
-        const accessToken = generateAccessToken({user: user});
+        const accessToken = generateAccessToken({ user: user });
         res.json({ accessToken: accessToken });
     })
 
 });
-
-function generateAccessToken({ user }) {
-    return jwt.sign({ user: user },
-        process.env.JWT_ACCESS_TOKEN_SECRET, { expiresIn: '5m' });
-}
-
-function generateRefreshToken({ user }) {
-    return jwt.sign({ user: user },
-        process.env.JWT_REFRESH_TOKEN_SECRET);
-}
 
 
 
