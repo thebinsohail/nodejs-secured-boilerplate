@@ -1,7 +1,7 @@
 // import essentials
 const express = require('express');
 const { sequelize } = require('./models');
-const userRoute = require('./routes/UserRoute');
+const routes = require('./routes/');
 const dotenv = require('dotenv');
 const app = express();
 
@@ -11,8 +11,10 @@ dotenv.config();
 app.use(express.json());
 
 // user routes
-app.use("/user", userRoute);
+app.use("/user", routes.userRoute);
 
+//admin routes
+app.use("/admin", routes.adminRoute);
 
 let PORT = process.env.PORT || 5000;
 
