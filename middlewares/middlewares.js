@@ -7,16 +7,22 @@ const middlewares={
     roleAuthentication: function (role){
 
         return (req,res,next)=>{
-            try{
-                console.log("-------------------------------------")
-                if(req.user.role===role)
-                    res.status(200).send("You have access");
 
-                next();
+            try {
+
+                if(req.user.user.role===role)
+                    return res.status(200).send("You have access");
+
+                   next();
+
+                return res.status(401).send({message:"No Permission to access"})
 
             }catch (e) {
-                res.status(403).send(e);
+                return res.status(403).send(e);
             }
+
+
+
         };
 
         },
@@ -29,9 +35,10 @@ const middlewares={
 
             jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET, (err, user) => {
 
-                if (err) return res.sendStatus(403)
+                if (err) return res.status(403).send({message:"Invalid Token"})
 
                 req.user = user
+
                 next();
             });
 

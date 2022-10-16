@@ -9,12 +9,20 @@ const middlewares =require("../middlewares/middlewares");
 dotenv.config({ path: "../.env" });
 
 // if the user has role "ROLE_USER" it will allow to access else no access!
-router.get("/feed",[middlewares.tokenAuthentication,middlewares.roleAuthentication("ROLE_USER")],(req,res)=>{
+router.get("/feed",[middlewares.tokenAuthentication,middlewares.roleAuthentication('ROLE_USER')],(req,res)=>{
     res.json({
        auth:true,
        message:"allowed for user with role ROLE_USER"
     });
 })
+
+// if the user has role "ROLE_ADMIN" it will allow to access else no access!
+router.get("/manage",[middlewares.tokenAuthentication,middlewares.roleAuthentication('ROLE_ADMIN')],(req, res)=>{
+    res.json({
+        auth:true,
+        message:"Allowed for user with role ROLE_ADMIN"
+    })
+});
 
 router.post("/register", async (req, res) => {
 
@@ -86,7 +94,7 @@ router.post('/token', (req, res) => {
 
 function generateAccessToken({ user }) {
     return jwt.sign({ user: user },
-        process.env.JWT_ACCESS_TOKEN_SECRET, { expiresIn: '10s' });
+        process.env.JWT_ACCESS_TOKEN_SECRET, { expiresIn: '5m' });
 }
 
 function generateRefreshToken({ user }) {
