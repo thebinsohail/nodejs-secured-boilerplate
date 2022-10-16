@@ -21,7 +21,8 @@ module.exports = (sequelize, DataTypes) => {
     userId: {type:DataTypes.BIGINT,allowNull:false,autoIncrement:true,primaryKey:true},
     email: {type:DataTypes.STRING,allowNull:false},
     userName:{type: DataTypes.STRING,allowNull:false},
-    password: {type:DataTypes.STRING,allowNull:false}
+    password: {type:DataTypes.STRING,allowNull:false},
+    role: {type:DataTypes.STRING,allowNull:false}  
   }, {
     sequelize,
     tableName:"user",

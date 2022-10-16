@@ -3,16 +3,23 @@ const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 const { User } = require("../models");
-
+const middlewares =require("../middlewares/middlewares");
 
 // Set up Global configuration access
 dotenv.config({ path: "../.env" });
 
+// if the user has role "ROLE_USER" it will allow to access else no access!
+router.get("/feed",[middlewares.tokenAuthentication,middlewares.roleAuthentication("ROLE_USER")],(req,res)=>{
+    res.json({
+       auth:true,
+       message:"allowed for user with role ROLE_USER"
+    });
+})
 
 router.post("/register", async (req, res) => {
 
 
-    const { email, userName, password } = req.body;
+    const { email, userName, password,role} = req.body;
 
     try {
         const Dbuser = await User.findOne({
@@ -20,7 +27,7 @@ router.post("/register", async (req, res) => {
         })
 
         if (Dbuser == null) {
-            const user = await User.create({ email, userName, password })
+            const user = await User.create({ email, userName, password,role})
             return res.json(user);
         }
 
@@ -42,10 +49,10 @@ router.post("/login", async (req, res) => {
     
     const username = req.body.userName
     const password = req.body.password;
-    const user = { username: username, password: password }
-
+    const role= req.body.role;
+    const user = { username: username, password: password,role:role}
     const dbUser = await User.findOne({
-        where: { userName: username, password: password }
+        where: { userName: username, password: password,role:role}
     })
 
 
@@ -87,27 +94,6 @@ function generateRefreshToken({ user }) {
         process.env.JWT_REFRESH_TOKEN_SECRET);
 }
 
-function authenticateToken(req, res, next) {
 
-    try {
-        const authHeader = req.headers['authorization'];
-        const token = authHeader && authHeader.split(' ')[1];
-
-        jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET, (err, user) => {
-
-            if (err) return res.sendStatus(403)
-
-            req.user = user
-
-            next();
-
-        });
-
-    } catch (error) {
-        // Access Denied
-        return res.status(401).send(error);
-    }
-
-}
 
 module.exports = router;
