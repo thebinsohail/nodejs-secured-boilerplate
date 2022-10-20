@@ -43,8 +43,7 @@ Note: This will only work with the stack mentioned above
 
 ## Usage
 
-# For the ROLE_USER we have allowed the feed endpoint. The middleware will run to authenticate token and will extract claims from the token and then if the 
-user has the role 'ROLE_USER' it will allow to access it  
+For the ROLE_USER we have allowed the feed endpoint. The middleware will run to authenticate token and will extract claims from the token and then if the user has the role 'ROLE_USER' it will allow to access it  
 
 ```
 Allowed for User with the ROLE_USER
@@ -64,7 +63,7 @@ router.get("/feed",
 
 ```
 
-# For the ROLE_ADMIN we have allowed the feed endpoint. The middleware will run to authenticate token and will extract claims from the token and then if the 
+For the ROLE_ADMIN we have allowed the feed endpoint. The middleware will run to authenticate token and will extract claims from the token and then if the 
 user has the role 'ROLE_ADMIN' it will allow to access it  
 
 
