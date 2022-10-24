@@ -87,7 +87,7 @@ router.get("/manage", [middlewares.tokenAuthentication, middlewares.roleAuthenti
 
 
 ## Contact
-Created with :heartpulse:	by [@anasbinsohail](https://www.instagram.com/anasbinsohail.dev) - feel free to contact me!
+Made with :heartpulse:	by [@anasbinsohail](https://www.instagram.com/anasbinsohail.dev) - feel free to contact me!
 
 <!-- ## License -->
 <!-- This project is open source and available under the [... License](). -->
